@@ -1,65 +1,75 @@
-// Variables globales pour suivre les scores
+// Global score variables
 let humanScore = 0;
 let computerScore = 0;
 
-// Fonction qui génère un choix aléatoire pour l'ordinateur
+// Get references to DOM elements
+const rockBtn = document.getElementById('rock');
+const paperBtn = document.getElementById('paper');
+const scissorsBtn = document.getElementById('scissors');
+const resultsDiv = document.getElementById('results');
+
+// Function to generate computer's choice
 function getComputerChoice() {
     const choices = ["rock", "paper", "scissors"];
     const randomIndex = Math.floor(Math.random() * choices.length);
     return choices[randomIndex];
 }
 
-// Fonction qui récupère le choix du joueur
-function getHumanChoice() {
-    let choice = prompt("Choisissez rock, paper ou scissors:").toLowerCase();
-    while (!["rock", "paper", "scissors"].includes(choice)) {
-        choice = prompt("Entrée invalide. Choisissez rock, paper ou scissors:").toLowerCase();
-    }
-    return choice;
-}
-
-// Fonction qui joue une manche
-function playRound(humanChoice, computerChoice) {
-    humanChoice = humanChoice.toLowerCase();
-    computerChoice = computerChoice.toLowerCase();
+// Function to play a round
+function playRound(humanChoice) {
+    const computerChoice = getComputerChoice();
     
-    if (humanChoice === computerChoice) {
-        return "It's a tie!";
+    if (humanScore >= 5 || computerScore >= 5) {
+        return; // Game is already over
     }
 
-    if (
+    let result;
+    if (humanChoice === computerChoice) {
+        result = "It's a tie!";
+    } else if (
         (humanChoice === "rock" && computerChoice === "scissors") ||
         (humanChoice === "paper" && computerChoice === "rock") ||
         (humanChoice === "scissors" && computerChoice === "paper")
     ) {
         humanScore++;
-        return `You win! ${humanChoice} beats ${computerChoice}`;
+        result = `You win! ${humanChoice} beats ${computerChoice}`;
     } else {
         computerScore++;
-        return `You lose! ${computerChoice} beats ${humanChoice}`;
+        result = `You lose! ${computerChoice} beats ${humanChoice}`;
+    }
+
+    // Update display
+    updateDisplay(result);
+    checkWinner();
+}
+
+// Function to update the display
+function updateDisplay(roundResult) {
+    resultsDiv.innerHTML = `
+        <p>${roundResult}</p>
+        <p>Score - You: ${humanScore}, Computer: ${computerScore}</p>
+    `;
+}
+
+// Function to check and announce winner
+function checkWinner() {
+    if (humanScore >= 5) {
+        resultsDiv.innerHTML += '<p>You win the game!</p>';
+        disableButtons();
+    } else if (computerScore >= 5) {
+        resultsDiv.innerHTML += '<p>You lose the game!</p>';
+        disableButtons();
     }
 }
 
-// Fonction qui joue 3 manches et affiche le résultat final
-function playGame() {
-    for (let i = 0; i < 3; i++) {
-        let humanChoice = getHumanChoice();
-        let computerChoice = getComputerChoice();
-        console.log(playRound(humanChoice, computerChoice));
-    }
-    
-    console.log(`Final Score - You: ${humanScore}, Computer: ${computerScore}`);
-    let result;
-    if (humanScore > computerScore) {
-        result = "You win the game!";
-    } else if (computerScore > humanScore) {
-        result = "You lose the game!";
-    } else {
-        result = "The game is a tie!";
-    }
-    console.log(result);
-    return result;
+// Function to disable buttons when game ends
+function disableButtons() {
+    rockBtn.disabled = true;
+    paperBtn.disabled = true;
+    scissorsBtn.disabled = true;
 }
 
-// Démarrer le jeu
-console.log(playGame());
+// Add event listeners to buttons
+rockBtn.addEventListener('click', () => playRound('rock'));
+paperBtn.addEventListener('click', () => playRound('paper'));
+scissorsBtn.addEventListener('click', () => playRound('scissors'));
